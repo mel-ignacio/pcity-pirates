@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCity Pirates – Last War Command</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B00;
+    --orange-bright: #FF8C00;
+    --orange-dark: #CC5500;
+    --orange-glow: rgba(255,107,0,0.4);
+    --black: #0A0A0A;
+    --black-mid: #141414;
+    --black-card: #1A1A1A;
+    --black-border: #2A2A2A;
+    --white: #F0EAD6;
+    --gold: #C8960C;
+    --red-alert: #FF2020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Subtle texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,107,0,0.015) 2px, rgba(255,107,0,0.015) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,107,0,0.01) 2px, rgba(255,107,0,0.01) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    padding: 24px 0 16px;
+    position: relative;
+  }
+
+  /* Jolly Roger Flag */
+  .flag-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    animation: flagWave 3s ease-in-out infinite;
+  }
+
+  @keyframes flagWave {
+    0%, 100% { transform: skewX(0deg) skewY(0deg); }
+    25% { transform: skewX(-1deg) skewY(0.5deg); }
+    75% { transform: skewX(1deg) skewY(-0.5deg); }
+  }
+
+  .flag {
+    width: 160px;
+    height: 100px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 2px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(255,107,0,0.2), 4px 4px 20px rgba(0,0,0,0.8);
+    overflow: hidden;
+  }
+
+  .flag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.3) 100%);
+  }
+
+  /* Skull SVG inline */
+  .skull-svg {
+    width: 70px;
+    height: 70px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Pittsburgh P logo */
+  .p-logo {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 44px;
+    height: 44px;
+    background: var(--orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: #000;
+    border: 3px solid #000;
+    box-shadow: 0 0 12px var(--orange-glow), 0 0 4px rgba(0,0,0,0.8);
+    letter-spacing: -1px;
+    font-style: italic;
+    z-index: 3;
+  }
+
+  .alliance-name {
+    font-family: 'Pirata One', cursive;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--orange);
+    text-shadow: 0 0 20px var(--orange-glow), 0 0 40px rgba(255,107,0,0.2), 2px 2px 0 #000;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .tagline {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.75rem;
+    color: #666;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* ─── CURRENT TIME BAR ─── */
+  .time-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    border-top: 2px solid var(--orange-dark);
+    padding: 10px 20px;
+    margin-bottom: 24px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    color: #888;
+    text-transform: uppercase;
+  }
+
+  .time-bar .current-time {
+    color: var(--orange);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* ─── ALARM CARDS ─── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media(min-width: 600px) {
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .alarm-card {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    border-top: 3px solid var(--orange);
+    padding: 24px 20px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .alarm-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255,107,0,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .alarm-card.urgent {
+    border-top-color: var(--red-alert);
+    animation: urgentPulse 1s ease-in-out infinite;
+  }
+
+  .alarm-card.urgent::before {
+    background: linear-gradient(180deg, rgba(255,32,32,0.08) 0%, transparent 60%);
+  }
+
+  @keyframes urgentPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,32,32,0); }
+    50% { box-shadow: 0 0 20px 4px rgba(255,32,32,0.25); }
+  }
+
+  .alarm-card.active {
+    border-top-color: #00FF88;
+    animation: activePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes activePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+    50% { box-shadow: 0 0 20px 4px rgba(0,255,136,0.2); }
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .card-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .card-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .card-subtitle {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 20px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .target-time {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .target-time-label {
+    font-size: 0.75rem;
+    color: #555;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .target-time-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    color: var(--orange);
+    font-weight: 600;
+  }
+
+  /* Countdown display */
+  .countdown {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .count-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #222;
+    padding: 8px 4px 6px;
+    text-align: center;
+    position: relative;
+  }
+
+  .count-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    display: block;
+    transition: color 0.3s;
+  }
+
+  .count-value.warning { color: var(--orange); }
+  .count-value.urgent { color: var(--red-alert); }
+  .count-value.done { color: #00FF88; }
+
+  .count-unit {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: #444;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid currentColor;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .status-badge.waiting { color: #555; }
+  .status-badge.warning { color: var(--orange); }
+  .status-badge.urgent { color: var(--red-alert); }
+  .status-badge.done { color: #00FF88; }
+
+  /* Alarm toggle */
+  .alarm-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #1E1E1E;
+  }
+
+  .toggle-label {
+    font-size: 0.8rem;
+    color: #555;
+    letter-spacing: 1px;
+    flex: 1;
+    text-transform: uppercase;
+  }
+
+  .toggle-btn {
+    width: 44px;
+    height: 24px;
+    background: #1E1E1E;
+    border: 1px solid #333;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .toggle-btn.on { background: var(--orange-dark); border-color: var(--orange); }
+  .toggle-btn::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #555;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s, background 0.3s;
+  }
+  .toggle-btn.on::after { left: 22px; background: var(--orange); }
+
+  /* ─── DIVIDER ─── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 20px;
+    color: #333;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #222;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid #1A1A1A;
+    font-size: 0.75rem;
+    color: #333;
+    letter-spacing: 2px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+  }
+
+  .skull-small { display: inline; opacity: 0.4; }
+
+  /* ─── Notification permission banner ─── */
+  .notif-banner {
+    background: rgba(255,107,0,0.08);
+    border: 1px solid rgba(255,107,0,0.3);
+    border-left: 3px solid var(--orange);
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #aaa;
+  }
+
+  .notif-btn {
+    background: var(--orange);
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .notif-btn:hover { background: var(--orange-bright); }
+
+  .notif-banner.hidden { display: none; }
+
+  /* Pirate decorative borders */
+  .pirate-border {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 8px 0;
+    color: #2A2A2A;
+    font-size: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="flag-container">
+      <div class="flag">
+        <!-- Skull and Crossbones SVG -->
+        <svg class="skull-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Skull dome -->
+          <ellipse cx="50" cy="42" rx="28" ry="26" fill="white"/>
+          <!-- Jaw -->
+          <path d="M30 54 Q30 70 38 70 L62 70 Q70 70 70 54" fill="white"/>
+          <!-- Jaw lines -->
+          <line x1="42" y1="64" x2="42" y2="70" stroke="#111" stroke-width="2"/>
+          <line x1="50" y1="62" x2="50" y2="70" stroke="#111" stroke-width="2"/>
+          <line x1="58" y1="64" x2="58" y2="70" stroke="#111" stroke-width="2"/>
+          <!-- Eyes -->
+          <ellipse cx="40" cy="40" rx="9" ry="9" fill="#111"/>
+          <ellipse cx="60" cy="40" rx="9" ry="9" fill="#111"/>
+          <!-- Nose -->
+          <path d="M47 52 Q50 48 53 52 L51 56 L49 56 Z" fill="#111"/>
+          <!-- Crossbones -->
+          <line x1="18" y1="82" x2="82" y2="82" stroke="white" stroke-width="7" stroke-linecap="round"/>
+          <line x1="18" y1="92" x2="82" y2="72" stroke="white" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="18" cy="82" r="5" fill="white"/>
+          <circle cx="82" cy="82" r="5" fill="white"/>
+          <circle cx="18" cy="92" r="5" fill="white"/>
+          <circle cx="82" cy="72" r="5" fill="white"/>
+        </svg>
+        <!-- Pittsburgh P logo -->
+        <div class="p-logo">P</div>
+      </div>
+    </div>
+
+    <div class="alliance-name">PCity Pirates</div>
+    <div class="tagline">Last War · Alliance Command Center</div>
+
+    <div class="pirate-border">⚔️ ☠️ ⚔️</div>
+  </div>
+
+  <!-- Notification Banner -->
+  <div class="notif-banner" id="notifBanner">
+    <span>⚠️ Enable browser notifications to get alerts when timers fire</span>
+    <button class="notif-btn" onclick="requestNotifPermission()">Enable Alerts</button>
+  </div>
+
+  <!-- Time Bar -->
+  <div class="time-bar">
+    <span>⚓ Command Center</span>
+    <span>Your Local: <span class="current-time" id="localTime">--:--:--</span></span>
+    <span>PT: <span class="current-time" id="ptTime">--:--:--</span></span>
+  </div>
+
+  <!-- ALARM CARDS -->
+  <div class="cards-grid">
+
+    <!-- Card 1: Shield -->
+    <div class="alarm-card" id="card-shield">
+      <span class="card-icon">🛡️</span>
+      <div class="card-label">Daily Action</div>
+      <div class="card-title">24hr Shield Pop</div>
+      <div class="card-subtitle">Drop shield & reactivate before attacks</div>
+
+      <div class="target-time">
+        <span class="target-time-label">Target:</span>
+        <span class="target-time-value">6:00 PM PT Daily</span>
+      </div>
+
+      <div class="countdown" id="countdown-shield">
+        <div class="count-block">
+          <span class="count-value" id="shield-h">--</span>
+          <span class="count-unit">Hrs</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="shield-m">--</span>
+          <span class="count-unit">Min</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="shield-s">--</span>
+          <span class="count-unit">Sec</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="shield-st">⏳</span>
+          <span class="count-unit">Status</span>
+        </div>
+      </div>
+
+      <div class="status-badge waiting" id="badge-shield">
+        <div class="status-dot"></div>
+        <span id="badge-shield-text">Waiting</span>
+      </div>
+
+      <div class="alarm-toggle">
+        <span class="toggle-label">🔔 Browser Alert</span>
+        <div class="toggle-btn on" id="toggle-shield" onclick="toggleAlarm('shield')"></div>
+      </div>
+    </div>
+
+    <!-- Card 2: Free Legendary -->
+    <div class="alarm-card" id="card-legend">
+      <span class="card-icon">⚡</span>
+      <div class="card-label">Daily Reward</div>
+      <div class="card-title">Free Legendary</div>
+      <div class="card-subtitle">Claim your free legendary character</div>
+
+      <div class="target-time">
+        <span class="target-time-label">Target:</span>
+        <span class="target-time-value">6:00 PM PT Daily</span>
+      </div>
+
+      <div class="countdown" id="countdown-legend">
+        <div class="count-block">
+          <span class="count-value" id="legend-h">--</span>
+          <span class="count-unit">Hrs</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="legend-m">--</span>
+          <span class="count-unit">Min</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="legend-s">--</span>
+          <span class="count-unit">Sec</span>
+        </div>
+        <div class="count-block">
+          <span class="count-value" id="legend-st">⏳</span>
+          <span class="count-unit">Status</span>
+        </div>
+      </div>
+
+      <div class="status-badge waiting" id="badge-legend">
+        <div class="status-dot"></div>
+        <span id="badge-legend-text">Waiting</span>
+      </div>
+
+      <div class="alarm-toggle">
+        <span class="toggle-label">🔔 Browser Alert</span>
+        <div class="toggle-btn on" id="toggle-legend" onclick="toggleAlarm('legend')"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-divider">☠ PCity Pirates ☠</div>
+
+  <div class="footer">
+    ☠ All times auto-sync to Pacific Time · Last War Survival ☠
+  </div>
+
+</div>
+
+<script>
+  const alarms = {
+    shield: { enabled: true, fired: false, name: '🛡️ Shield Time!', body: 'Pop your 24hr shield NOW! PCity Pirates orders.' },
+    legend: { enabled: true, fired: false, name: '⚡ Free Legendary!', body: 'Claim your FREE Legendary Character NOW!' }
+  };
+
+  function getPTTime() {
+    // Get current time in PT (America/Los_Angeles handles DST)
+    const now = new Date();
+    const ptStr = now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+    return new Date(ptStr);
+  }
+
+  function getNextTarget(hour, minute) {
+    const pt = getPTTime();
+    const target = new Date(pt);
+    target.setHours(hour, minute, 0, 0);
+    if (pt >= target) {
+      target.setDate(target.getDate() + 1);
+    }
+    // Convert back to real milliseconds diff
+    const now = new Date();
+    const nowPT = getPTTime();
+    const diffMs = target - nowPT;
+    return diffMs;
+  }
+
+  function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+  function updateCountdown(id, diffMs) {
+    const h = document.getElementById(id + '-h');
+    const m = document.getElementById(id + '-m');
+    const s = document.getElementById(id + '-s');
+    const st = document.getElementById(id + '-st');
+    const badge = document.getElementById('badge-' + id);
+    const badgeText = document.getElementById('badge-' + id + '-text');
+    const card = document.getElementById('card-' + id);
+
+    if (diffMs <= 0) {
+      h.textContent = '00'; m.textContent = '00'; s.textContent = '00';
+      st.textContent = '✅';
+      h.className = 'count-value done';
+      m.className = 'count-value done';
+      s.className = 'count-value done';
+      badge.className = 'status-badge done';
+      badgeText.textContent = 'FIRE NOW';
+      card.className = 'alarm-card active';
+      // Fire notification
+      if (alarms[id].enabled && !alarms[id].fired) {
+        alarms[id].fired = true;
+        fireNotification(id);
+      }
+      return;
+    }
+
+    // Reset fired flag a bit after firing
+    if (diffMs > 5000) alarms[id].fired = false;
+
+    const totalSec = Math.floor(diffMs / 1000);
+    const hours = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+
+    h.textContent = pad(hours);
+    m.textContent = pad(mins);
+    s.textContent = pad(secs);
+    st.textContent = '⏳';
+
+    const isUrgent = totalSec < 300; // < 5 min
+    const isWarning = totalSec < 3600; // < 1 hr
+
+    if (isUrgent) {
+      h.className = m.className = s.className = 'count-value urgent';
+      badge.className = 'status-badge urgent';
+      badgeText.textContent = 'IMMINENT';
+      card.className = 'alarm-card urgent';
+    } else if (isWarning) {
+      h.className = m.className = s.className = 'count-value warning';
+      badge.className = 'status-badge warning';
+      badgeText.textContent = 'Approaching';
+      card.className = 'alarm-card';
+      card.style.borderTopColor = 'var(--orange)';
+    } else {
+      h.className = m.className = s.className = 'count-value';
+      badge.className = 'status-badge waiting';
+      badgeText.textContent = 'Standing By';
+      card.className = 'alarm-card';
+    }
+  }
+
+  function updateClocks() {
+    const now = new Date();
+    document.getElementById('localTime').textContent = now.toLocaleTimeString();
+
+    const ptStr = now.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+    });
+    document.getElementById('ptTime').textContent = ptStr;
+
+    // Both alarms at 6:00 PM PT
+    const shieldMs = getNextTarget(18, 0);
+    const legendMs = getNextTarget(18, 0);
+
+    updateCountdown('shield', shieldMs);
+    updateCountdown('legend', legendMs);
+  }
+
+  function toggleAlarm(id) {
+    alarms[id].enabled = !alarms[id].enabled;
+    const btn = document.getElementById('toggle-' + id);
+    btn.className = 'toggle-btn' + (alarms[id].enabled ? ' on' : '');
+  }
+
+  function fireNotification(id) {
+    if (Notification.permission === 'granted') {
+      new Notification(alarms[id].name, {
+        body: alarms[id].body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">☠️</text></svg>'
+      });
+    }
+    // Also play an audio beep using Web Audio
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      for (let i = 0; i < 3; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.3 + 0.25);
+        osc.start(ctx.currentTime + i * 0.3);
+        osc.stop(ctx.currentTime + i * 0.3 + 0.25);
+      }
+    } catch(e) {}
+  }
+
+  async function requestNotifPermission() {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      document.getElementById('notifBanner').classList.add('hidden');
+    }
+  }
+
+  // Auto-hide banner if already granted
+  if (Notification.permission === 'granted') {
+    document.getElementById('notifBanner').classList.add('hidden');
+  }
+  if (Notification.permission === 'denied') {
+    document.getElementById('notifBanner').innerHTML = '<span>⚠️ Notifications blocked. Enable in browser settings for alerts.</span>';
+  }
+
+  // Kick off
+  updateClocks();
+  setInterval(updateClocks, 1000);
+</script>
+</body>
+</html>
